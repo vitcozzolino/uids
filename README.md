@@ -1,85 +1,16 @@
-# Notes
+# Abstract
 
-# IncludeOS packet path
+The advent of the Internet of Things promises to interconnect all type of devices, including the most common
+electrical appliances such as ovens and light bulbs. One of the greatest risks of the uncontrolled proliferation of resource constrained devices are the security and privacy implications.
 
-Driver virto (virtionet.hpp) 
-  -> net::Link\_layer<net::Ethernet>  (link\_layer.hpp)
-    -> net::Ethernet::receive() (ethernet.cpp)
-      -> dispatched to upstream delegates ip4\_upstream, ip6\_upstream, arp\_upstream, vlan\_upstream
+Most manufacturers’ top priority is getting their product into the market quickly, rather than taking the necessary steps
+to build security from the start, due to high competitiveness of the field. Moreover, standard security tools are tailored to server-class machines and not directly applicable in the IoT domain.
 
-VirtioNet::msix\_recv\_handler()
-net::Link\_layer::receive() // hook into here for full ethernet packet (possibly change Protocol Type)
-net::Ethernet::receive()
+To address these problems, we propose a lightweight, signature-based intrusion detection system for IoT to be able to run on resource-constrained devices. Our prototype is based on the IncludeOS unikernel, ensuring low resource utilization, high modularity, and a minimalist code surface. In particular, we evaluate the performance of our solution on x86 and ARM devices and compare it against Snort, a widely known network intrusion detection system. The experimental results show that our prototype effectively detects all attack patterns while using up to 2-3x less CPU and 8x less RAM than our baseline.
 
+# UIDS
 
-# Device registration for a virtual NIC without using NaCl
-  using NaCl: use file e.g. iface.nacl with 
-          Iface eth0 {
-            index: 0
-          }
-
-  TODO figure out how this code is translated by the NaCl parser
-
-# Traffic passthrough from host to guest(includeos service)
-
-NIC PCI passthrough, solve:
-  - IncludeOS instance needs drivers for physical NIC
-  - Find qemu parameters used by 'boot' utility
-
-Network bridge:
-  IncludeOS creates and uses a bridge called bridge43 with TAP networking (layer2)
-  Simply add ethernet interface of host to the bridge, should give packets to the guest.
-  TODO test if this works
-  brctl addif <iface\_name>
-
-# TODO research/background
-  # IDS (network) [exclude HIDS]
-    notification
-    detection
-    existing approaches (minimal like click os, broad ones like snort etc.)
-    attacks? 
-    design patterns?
-    
-  # Unikernels
-    IncludeOS, MirageOS, etc.
-
-  # Motivation? Iot? Cloud? 
-  
-  # Latex template
-  
-  # use NaCl to configure IDS ruleset?
-
-# TODO code
-  notification system
-    -> IncludeOS allows logging to UDP (usecase?)
-  Full Ethernet packet capture (probably need to expand IncludeOS, implement Capture Protocol type [in addition to existing Ethernet]?)
-  Maybe write files into host os filesystem? Probably better to use second network card (might be possible to run bare metal on arm in the future)
-  
-  Compartmentualize:
-    Sniffer
-    Preprocessors (skip for now)
-    Detection (limited scope [portscan/ddos])
-    Alert (use second network interface (udp/tcp) or shared disk space on host)
+This repo contains the code for UIDS, our unikernel-based IDS. The paper discussing UIDS was accepted at DISS 2020 and the pre-print version can be found [here](http://homepage.tudelft.nl/8e79t/files/pre-print-diss2020.pdf).
 
 
-# TODO Evaluation
-  research methods used to evaluate includeos (2 masterthesis so far)
-  ARM support to run IDS image on RasberryPi in development by IncludeOS team (work started Jan 2019)
-  etc.
-
-# TODO Portscan
-Fragmented IP packets detect ports
-includeos connections are saved in std::unordered_map<tcp::Connection::Tuple, tcp::Connection_ptr>; 
-
-
-# Stream handling in Snort
-spp_stream4.c
-
-# Papers
-High performance Multi-rule inspection engine - aho-corasick, wu-manber, boyer-moore
-
-# Testing
-sudo ip r add local 1.0.0.0/8 dev eth0
-sudo ip a add 10.0.0.1/24 dev eth0
-sudo ip r add default via 10.0.0.2
-sudo arp -s 10.0.02 xx:yy:xx:yy:xx;yy
+# WIP
