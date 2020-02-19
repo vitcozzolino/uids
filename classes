@@ -1,0 +1,83 @@
+Quadruple // struct [api/net/socket.hpp]
+  Socket src
+  Socket dst 
+
+Socket  // class [api/net/socket.hpp]
+  Address = net::Addr
+  port_t = uint16_t
+
+Addr // union [api/net/addr.hpp]
+  IP4 or IP6 Addr
+
+Quintuple // struct [api/net/conntrack.hpp]
+  Quadruple quad
+  Protocol proto
+
+Protocol
+  enum class Protocol : uint8_t {
+    HOPOPT     =  0,
+    ICMPv4     =  1,
+    IPv4       =  4,  // IPv4 encapsulation
+    TCP        =  6,
+    UDP        = 17,
+    IPv6       = 41,  // IPv6 encapsulation
+    ICMPv6     = 58,
+    IPv6_NONXT = 59,
+    OPTSV6     = 60
+  };
+
+Conntrack // class [api/net/conntrack.hpp]
+  State [NEW, ESTABLISHED, RELATED, UNCONFIRMED]
+  Flag [UNREPLIED, ASSURED]
+  Entry // Connection
+    first Quadruple (src, dst)
+    second Quadruple (dst, src)
+    proto ...
+  Packet_tracker = delegate<Entry*(Conntrack&, Quadruple, const PacketIP4&)> 
+  Packet_tracker tcp_in // <- Custom TCP handler by default dumb_in [simple_track_in]
+  Entry_table = std::unordered_map<Quintuple, std::shared_ptr<Entry>, Quintuple_hasher>
+  Entry_table entries
+
+  Conntrack::in() // function, returns found conntrack entry or nullptr
+    switches on protocol and sends packet to tcp_in for tcp and simple_track_in for udp and icmp
+
+  simple_track_in // function, returns found conntrack entry or nullptr
+    find entry 
+      no entry found -> add new entry return
+      entry found -> if state NEW and other direction set state=ESTABLISHED
+        update timeout, return
+
+  tcp4_conntrack // function [api/net/tcp/tcp_conntrack.hpp], returns found conntrack entry or nullptr
+    more sophisticated tcp4 connection tracking
+
+  Conntrack::get() // function finds and returns the Entry* belonging to the Quadruple/Proto
+  Conntrack::add_entry(Quadruple, Protocol) // function adds 2 entries (1 for each direction to the entries table
+
+Ethernet::receive // function receives packet from link layer [api/net/link_layer.hpp] [api/net/ethernet/ethernet.hpp]
+  Statkeeping
+  Switches on Ethertype and calls appropiate delegates
+    i.e. ip4_upstream for ip4 packets etc.
+
+IP4::receive // function receives IP4 packet from delegate ip4_upstream after going through Ethernet::receive [api/net/ip4/ip4.hpp]
+  Statkeeping
+  send to Conntrack::in() if exists
+  send to prerouting_chain_ [Filter_chain<IP4>]
+
+Filter_chain // struct [api/net/netfilter.hpp], 
+          called by IP4 prerouting_chain_ (IP6 prerouting_chain_ currently disabled)
+  list of packet filters std::list<Packetfilter<IPV>> chain
+  Callable runs through all the filters in the list by calling them same function declaration as Packetfilter
+
+Packetfilter<IPV> = delegate<Filter_verdict<IPV>(typename IPV::IP_packet_ptr, Inet&, Conntrack::Entry_ptr)>
+filters must be callable with the above declared function declaration, e.g.  
+     #  class My_Filter : public nacl::Filter {
+     #    public:
+     #      Filter_verdict<IP4> operator()(IP4::IP_packet_ptr pckt, Inet& stack, Conntrack::Entry_ptr ct_entry) {
+     #        if (not ct_entry) {
+     #    return {nullptr, Filter_verdict_type::DROP};
+     #    }
+     #    return {std::move(pckt), Filter_verdict_type::ACCEPT};
+     #  }
+
+Filter_verdict<IPV>
+  has packet and verdict (verdict either ACCEPT or DROP) packet can be released with release()

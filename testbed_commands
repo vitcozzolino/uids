@@ -1,0 +1,12 @@
+sudo ip netns add debug
+sudo ip l set dev eth0 netns debug
+sudo ip netns exec debug bash
+ip l set dev eth0 up
+
+snort -c /etc/snort/snort.conf > log_snort 2> err_snort &
+psrecord $PID --include-children --interval 0.5 --log FILE
+
+tcpreplay-edit --mtu-trunc -i enp0s25 caputre.pcap
+
+# Allows flooding for all frames, pretty sure this solves the issues with packets disappearing
+brctl setageing bridge43 0

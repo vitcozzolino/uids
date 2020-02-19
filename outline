@@ -1,0 +1,46 @@
+Introduction / (Motivation)
+
+Why IDS are important
+Resource constrained
+IoT stuff 
+IoT botnets - sensitive private data Alexa, Doorbell cameras, smart devices etc
+Unikernels as a way to run single purpose applications fast
+
+Thesis explores the advantages and disavantages of running IDS via unikernels (faster, easiser to deploy etc)
+IDS constrained to Portscan and DoS detection
+
+
+
+Background
+  Unikernel
+  IDS
+  Portscans and detection
+  DoS and detection
+
+Related work
+  CEPDIS & CEPDIS thesis
+  Snort
+  ClickOS
+  Bauer thesis (Portscan detection eval)
+  IncludeOS firewall benchmarking
+
+Implementation
+  IncludeOS and what it provides
+    Conntrack
+    Architecture/Network stack
+  Our Implementation
+    Portscan detection threshold based (based on snorts ideas)
+
+
+Evaluation
+  Available datasets for evaluation (that one paper) 
+  vs Snort (background taffic, describe testbed etc.)
+    Performance and accuracy
+  vs CEPDIS (if possible same tests)
+    performance mostly
+    Build in forwarding/firewalling?
+  
+Conclusion
+  Interpret evaluation results
+  Furture work (Nacl based rules? Full ids ipv6 support gateway ...)
+  It does (or does not) make sense to deploy IDS as unikernel based single purpose applications

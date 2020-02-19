@@ -1,0 +1,25 @@
+Gerneral:
+  see https://github.com/snort3/snort3/blob/master/doc/port_scan.txt
+
+  Types of portscans: (single host scans)
+    TCP scan
+    UPD scan
+    IP scan
+
+  Portsweeps (TCP/UDP)
+  Filtered scans (stealth)
+  
+
+Keep track of connections, count packets not part of connections
+
+single host scan (single source)
+-> count ports hit per host in timewindow
+
+single host scan (distributed)
+-> count ports hit per host in timewindow
+
+Portsweeps
+-> count hosts hit per port
+
+considerations:
+  do not overwhelm either if the other scan is ongoing!

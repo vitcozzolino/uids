@@ -1,0 +1,64 @@
+Methodology
+
+Raspberry Pi with 1 Gb ram 1.2GHz arm quad core
+
+Measure CPU/RAM with script 
+Attack detection rate calculated from CEPIDS logs
+Experiments 120sec x 10 repititions for each attack
+
+statistical analysis using PSAT
+
+
+Six different type of attacks:
+SYN Flood
+triggers if >128 SYN in a second per src_ip/dst_ip pair, no SYN/ACK
+Dataset DARPA 1998
+idle 0.5% CPU 1.4% RAM
+load aver. 78.91% CPU 12.18% RAM
+
+UDP Flood
+triggers if >30 udp packets per second from single src_ip, based on Suricata IDS 
+Dataset DARPA
+load 70.67% CPU 7.64% RAM
+
+LAND attack
+>128 packets per second with src_ip=dst_ip and src_port = dst_port
+load 78.70% CPU 12.16% RAM
+DARPA
+
+ICMP Flood
+>100 icmp echo request per second from the same src_ip
+CTU-11 from CTU-13 dataset
+load 77.05% CPU 11.14% RAM
+
+Portscan
+>10 syn per dst_ip/src_ip pair with distinct ports >= count(syn)
+Zenmap, nmap gui
+load 30% background traffic 6.48% CPU 5.21% RAM
+load 90% background traffic 10.25% CPU 6.57% RAM
+
+
+Smurf attack
+?
+CTU-4 
+load 76.50% CPU 11.29% RAM
+
+
+Detection numbers:
+
+- SYN Flood UDP Flood ICMP Flood Land Attack Smurf Attack Port Scan
+TP 100000 100000 100000 100000 100000 -
+PA 99367 99428 99589 99367 99495 -
+PP 633 572 411 633 505 -
+AE 2000 2000 2000 2000 2000 1000
+AD 1948 1940 1979 1956 1965 968
+TD 97,4% 97,00% 98,95% 97,8% 98,25% 96,80%
+TPP 0,63% 0,57% 0,41% 0,63% 0,51% -
+
+TP - Total number of packages
+PA - Number of packages analyzed
+PP - Number of lost packets
+AE - Number of expected alerts
+AD - Number of alerts detected
+TD - Attack detection rate
+TPP - Lost packet rate

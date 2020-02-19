@@ -1,0 +1,3 @@
+Iface eth0 {
+  index: 0
+}
