@@ -14,13 +14,11 @@ This repo contains the code for UIDS, our unikernel-based IDS. The paper discuss
 
 
 # Installing and Running
-Install IncludeOS as shown at https://www.includeos.org/
-Build portscan\_simple similar to their hello\_world example
-Boot the portdetect image with boot portdetect --create-bridge
+Install IncludeOS as shown at https://www.includeos.org/  
+Build portscan\_simple similar to their hello\_world example  
+Boot the portdetect image with `boot portdetect --create-bridge`  
 
-To get traffic to the virtual machine use the newly created network bridge bridge43. 
-It can be helpful to remove IP addresses from this bridge or set up a new network namespace to make sure no packets are sent up the network stack of the bridge interface.
+To get traffic to the virtual machine use the newly created network bridge bridge43.  
+It can be helpful to remove IP addresses from this bridge or set up a new network namespace to make sure no packets are sent up the network stack of the bridge interface.  
 
-Disable caching of MAC addresses on the bridge with 
-brctl setageing bridge43 0
-if you have issues with some frames not being routed to the tap interface of the virtual machine.
+Disable caching of MAC addresses on the bridge with `brctl setageing bridge43 0` if you have issues with some frames not being routed to the tap interface of the virtual machine.
